@@ -5,6 +5,7 @@ const mongo = require('mongodb');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const validUrl = require('valid-url');
 const dns = require('dns');
 
 
@@ -23,8 +24,7 @@ const urlSchema = new Schema(
   {
     originalUrl: String,
     shorterUrl: String
-  },
-  { timestamps: true }
+  }
 );
 
 const ShortUrl = mongoose.model('shortUrl', urlSchema);
@@ -60,7 +60,7 @@ app.post('/api/shorturl/new', (req, res) => {
       ShortUrl.findOne({ originalUrl: urlToShorten }, (err, data) => {
         if (err) return res.send(err);
         if (data) {
-          return res.json(data);
+          return res.json({ original_url: data.originalUrl, short_url: data.shorterUrl });
         } else {
           var short = Math.floor(Math.random() * 100000).toString();
           var data = new ShortUrl({
@@ -73,7 +73,7 @@ app.post('/api/shorturl/new', (req, res) => {
               return res.send('Error saving to database');
             }
           });
-          return res.json(data);
+          return res.json({ original_url: data.originalUrl, short_url: data.shorterUrl });
         }   
       }); 
     }
@@ -81,17 +81,10 @@ app.post('/api/shorturl/new', (req, res) => {
 });
 
 app.get('/api/shorturl/:urlToForward', (req, res) => {
-  console.log('here');
   var shorterUrl = req.params.urlToForward;
   ShortUrl.findOne({ shorterUrl }, (err, data) => {
     if (err) {
       return res.send('Error reading database');
-    }
-    var re = new RegExp('^(http|https)://', 'i');
-    var strToCheck = data.originalUrl;
-    console.log(strToCheck);
-    if (re.test(strToCheck)) {
-      res.redirect(data.originalUrl);
     }
     res.redirect('https://' + data.originalUrl);
   });
