@@ -94,18 +94,3 @@ app.get('/api/shorturl/:urlToForward', (req, res) => {
 app.listen(port, function () {
   console.log('Node.js listening ...');
 });
-
-/*
-
-const shortUrl = require('./models/shortUrl');
-
-app.use(bodyParser.json());
-
-app.use(express.static(__dirname + '/public'));
-
-
-app.listen(process.env.PORT || 3000, () => {
-  console.log('Everything is working fine');
-});
-
-*/
